@@ -29,6 +29,12 @@ class FileMonitor(FileSystemEventHandler):
 		try:
 			#helpers.sendFile(self.clientIP, event.src_path, 6000)
 			
+			filename=event.src_path
+			f = open(filename,'rb')
+			l = f.read(1024)
+			if not l:
+				return
+			
 			helpers.fileSender(self.clientIP, event.src_path, 6000)
 			print "File Created: " + event.src_path
 			print "Calling send file\n"
@@ -45,9 +51,11 @@ class FileMonitor(FileSystemEventHandler):
 		helpers.sendMessage("File deleted: " + event.src_path, configReader.srcIP, 9000)
 		
 	def on_moved(self,event):
+		time.sleep(2)
 		print "File Modified: " + event.dest_path
 		print "Calling send file\n"
 		helpers.fileSender(self.clientIP, event.dest_path, 6000)
+		
 		
 	#def on_modified(self,event):
 	#	
