@@ -20,6 +20,7 @@ import binascii, time, os, ntpath, encryption, logging, configReader
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 
+
 maxPort = 65535
 
 
@@ -208,6 +209,7 @@ def fileSender(ip, filePath, port):
 	port = 60000                    # Reserve a port for your service.
 	s = socket.socket()             # Create a socket object
 	s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+	
 	host = socket.gethostname()     # Get local machine name
 	s.bind((host, port))            # Bind to the port
 	s.listen(5)                     # Now wait for client connection.
@@ -230,7 +232,6 @@ def fileSender(ip, filePath, port):
 		f.close()
 			
 		print('Done sending')
-		conn.send('Thank you for connecting')
 		conn.close()
 		sending = False
 	
