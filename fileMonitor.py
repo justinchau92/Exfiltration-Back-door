@@ -47,7 +47,7 @@ class FileMonitor(FileSystemEventHandler):
 	def on_moved(self,event):
 		print "File Modified: " + event.dest_path
 		print "Calling send file\n"
-		helpers.sendFile(self.clientIP, event.dest_path, 6000)
+		helpers.fileSender(self.clientIP, event.dest_path, 6000)
 		
 	#def on_modified(self,event):
 	#	
