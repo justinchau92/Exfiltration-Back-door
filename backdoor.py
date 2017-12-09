@@ -308,8 +308,8 @@ def main():
     #while state is not 3:  
         #sniff(filter="udp and dst port 7000", prn=knock, count=1)
         
-    global clientIP #testing purposes remove after
-    clientIP = '127.0.0.1'
+    global clientIP
+    clientIP = configReader.srcIP
     
     while True:
 		sniff(filter="dst port 8000", prn=runCmd, count=1)
