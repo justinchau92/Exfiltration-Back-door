@@ -176,9 +176,8 @@ def recvPhoto():
 	s = socket.socket()     
 	s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)        # Create a socket object
 	
-	#DEBUGGING METHOD HPST
-	host = socket.gethostname()     # Get local machine name #FIX BEFORE EXECUTING DEBUGGING
-	port = 60000                    # Reserve a port for your service.
+	host = configReader.destIP    # Get local machine name 
+	port = 60000                  # Reserve a port for your service.
 
 	s.connect((host, port))
 	s.send("Hello server!")
