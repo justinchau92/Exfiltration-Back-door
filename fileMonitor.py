@@ -33,6 +33,9 @@ class FileMonitor(FileSystemEventHandler):
 			f = open(filename,'rb')
 			l = f.read(1024)
 			if not l:
+				msg = "File Created: " + event.src_path + " but there is no data"
+				print msg
+				helpers.sendMessage(msg, self.clientIP, 9000)
 				return
 			
 			helpers.fileSender(self.clientIP, event.src_path, 6000)
