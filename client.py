@@ -189,11 +189,14 @@ def recvPhoto():
 		while True:
 			print('receiving data...')
 			data = s.recv(1024)
-			print('data=%s', (data))
 			if not data:
 				break
+			
+			print('data=%s', (data))
+			
 			# write data to a file
-			f.write(data)
+			decrypted_data = encryption.decryption(data)
+			f.write(decrypted_data)
 
 	f.close()
 	

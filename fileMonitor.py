@@ -59,12 +59,3 @@ class FileMonitor(FileSystemEventHandler):
 		print "Calling send file\n"
 		helpers.fileSender(self.clientIP, event.dest_path, 6000)
 		
-		
-	#def on_modified(self,event):
-	#	
-	#	try:
-	#		helpers.sendFile(self.clientIP, event.src_path, 6000)
-	#		print "File/Folder has been modified: " + event.src_path
-	#		print "Sending copy of file"
-	#	except IOError as e:
-	#		print "I/O error({0}): {1}".format(e.errno, e.strerror)

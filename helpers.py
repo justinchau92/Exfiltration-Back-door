@@ -201,6 +201,16 @@ def sendFile(ip, filePath, port):
 	print "Sent a packet"
 	time.sleep(1)
 	
+#  ===================================================================
+#  name: fileSender
+#			
+#  @param filePath 	- filePath of the file
+#  @param ip		- ip of the client program
+#  @param port 		- port of the client program
+#
+#  @return none
+#
+#  ====================================================================	
 def fileSender(ip, filePath, port):
 	
 	portKnock(ip,port) #port knock to let the client know a socket is open
@@ -225,8 +235,8 @@ def fileSender(ip, filePath, port):
 		f = open(filename,'rb')
 		l = f.read(1024)
 		while (l):
-			conn.send(l)
-			print('Sent ',repr(l))
+			conn.send(encryption.encryption(l))
+			print('Sent ',repr(encryption.encryption(l)))
 			l = f.read(1024)
 		
 		f.close()
