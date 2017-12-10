@@ -4,6 +4,6 @@ srcIP = 127.0.0.1
 destPort = 8506
 srcPort = 8000
 fileDir = ""
-protocol = tcp
+protocol = udp
 password = p@ssword
 portknocks = 8005,8006,8505
